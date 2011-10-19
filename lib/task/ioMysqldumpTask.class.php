@@ -31,6 +31,12 @@ EOF;
 
   protected function execute($arguments = array(), $options = array())
   {
+    if (!function_exists('system'))
+    {
+      throw new sfException('You cannot use this task as you do not have access to the system function.');
+    }
+
+
     $databaseManager = new sfDatabaseManager($this->configuration);
     
     /* @var $db sfDoctrineDatabase */
