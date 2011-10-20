@@ -83,7 +83,7 @@ EOF;
       }
       else
       {
-        $this->getFilesystem()->execute($cmd, array($this, 'logOutput'), array($this, 'logErrors'));
+        system($cmd);
       }
     }
     elseif(strcmp($arguments['dest'], 'localhost') != 0 && array_key_exists($arguments['dest'], $settings) && $options['include-database'])
@@ -142,7 +142,7 @@ EOF;
         }
       }
     }
-    elseif($options['include-database'])
+    elseif($options['include-content'])
     {
       throw new sfException(sprintf('Could not find host in properties.ini'));
     }
