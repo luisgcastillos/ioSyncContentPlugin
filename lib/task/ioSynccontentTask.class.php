@@ -64,7 +64,7 @@ EOF;
      */
     if(strcmp($arguments['src'], 'localhost') != 0 && array_key_exists($arguments['src'], $settings) && $options['include-database'])
     {
-      $cmd = sprintf('ssh -p%s %s@%s \'cd %s; ./symfony io:mysqldump --application=% --env=% --connection=%s --mysqldump-options="%s"\' | ./symfony io:mysql-load --application=% --env=% --connection=%s',
+      $cmd = sprintf('ssh -p%s %s@%s \'cd %s; ./symfony io:mysqldump --application=%s --env=%s --connection=%s --mysqldump-options="%s"\' | ./symfony io:mysql-load --application=%s --env=%s --connection=%s',
           empty($settings[$arguments['src']]['port']) ? '22' : $settings[$arguments['src']]['port'],
           $settings[$arguments['src']]['user'],
           $settings[$arguments['src']]['host'],
