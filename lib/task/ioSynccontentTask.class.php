@@ -22,6 +22,7 @@ class ioSynccontentTask extends sfBaseTask
       new sfCommandOption('include-database', null, sfCommandOption::PARAMETER_NONE, 'Include the database'),
       new sfCommandOption('include-content', null, sfCommandOption::PARAMETER_NONE, 'Include files and folders as defined in app.yml'),
       new sfCommandOption('dry-run', null, sfCommandOption::PARAMETER_NONE, 'Dry run, does not sync anything'),
+      new sfCommandOption('mysqldump-options', null, sfCommandOption::PARAMETER_REQUIRED, 'Options to pass to mysqldump', '--skip-opt --add-drop-table --create-options --disable-keys --extended-insert --set-charset'),
       // add your own options here
     ));
 
@@ -63,24 +64,31 @@ EOF;
      */
     if(strcmp($arguments['src'], 'localhost') != 0 && array_key_exists($arguments['src'], $settings) && $options['include-database'])
     {
-      $cmd = sprintf('ssh -p%s %s@%s \'cd %s; ./symfony io:mysqldump\'',
+      $cmd = sprintf('ssh -p%s %s@%s \'cd %s; ./symfony io:mysqldump --application=% --env=% --connection=%s --mysqldump-options="%s"\' | ./symfony io:mysql-load --application=% --env=% --connection=%s',
           empty($settings[$arguments['src']]['port']) ? '22' : $settings[$arguments['src']]['port'],
           $settings[$arguments['src']]['user'],
           $settings[$arguments['src']]['host'],
-          $settings[$arguments['src']]['dir']
+          $settings[$arguments['src']]['dir'],
+          $options['application'],
+          $options['env'],
+          $options['connection'],
+          $options['mysqldump-options'],
+          $options['application'],
+          $options['env'],
+          $options['connection']
       );
-
-      $this->getFilesystem()->execute($cmd, array($this, 'logOutput'), array($this, 'logErrors'));
+      if ($options['dry-run'])
+      {
+        $this->logSection('dry-run', 'syncing databases');
+      }
+      else
+      {
+        $this->getFilesystem()->execute($cmd, array($this, 'logOutput'), array($this, 'logErrors'));
+      }
     }
     elseif(strcmp($arguments['dest'], 'localhost') != 0 && array_key_exists($arguments['dest'], $settings) && $options['include-database'])
     {
-      $cmd = sprintf('ssh -p%s %s@%s',
-          empty($settings[$arguments['dest']]['port']) ? '22' : $settings[$arguments['dest']]['port'],
-          $settings[$arguments['dest']]['user'],
-          $settings[$arguments['dest']]['host']
-      );
-
-      $this->getFilesystem()->execute($cmd, array($this, 'logOutput'), array($this, 'logErrors'));
+      throw new sfException('Not yet implimented');
     }
     elseif($options['include-database'])
     {
