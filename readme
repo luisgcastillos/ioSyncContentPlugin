@@ -100,3 +100,7 @@ the way it works.
 --dry-run
     If you pass this option, then only the output will be displayed, nothing will
     sync.
+
+--mysqldump-options="--skip-opt --add-drop-table --create-options --disable-keys --extended-insert --set-charset"
+    If you are syncing databases, you can pass this option and change the way the
+    database is synced
