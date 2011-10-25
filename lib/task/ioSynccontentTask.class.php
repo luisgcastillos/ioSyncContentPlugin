@@ -18,7 +18,7 @@ class ioSynccontentTask extends sfBaseTask
       new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name', 'frontend'),
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
-      new sfCommandOption('rsync-options', null, sfCommandOption::PARAMETER_REQUIRED, 'Options to use when rsyncing', '-avz'),
+      new sfCommandOption('rsync-options', null, sfCommandOption::PARAMETER_REQUIRED, 'Options to use when rsyncing', '-avzCr --force --delete --progress'),
       new sfCommandOption('include-database', null, sfCommandOption::PARAMETER_NONE, 'Include the database'),
       new sfCommandOption('include-content', null, sfCommandOption::PARAMETER_NONE, 'Include files and folders as defined in app.yml'),
       new sfCommandOption('dry-run', null, sfCommandOption::PARAMETER_NONE, 'Dry run, does not sync anything'),
@@ -105,7 +105,7 @@ EOF;
         $this->logSection('sync-content', 'Syncing content from remote server to localhost');
         foreach($contentArray as $content)
         {
-          $cmd = sprintf('rsync %s %s -e "ssh -p%s" %s@%s:%s %s',
+          $cmd = sprintf('rsync %s %s -e "ssh -p%s" %s@%s:%s/ %s',
               $options['dry-run'] ? '--dry-run' : '',
               $options['rsync-options'],
               empty($settings[$arguments['src']]['port']) ? '22' : $settings[$arguments['src']]['port'],
