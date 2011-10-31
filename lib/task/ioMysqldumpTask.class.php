@@ -43,10 +43,10 @@ EOF;
 
     $dsn = ioSyncContentToolkit::parseDsn($db->getParameter('dsn'));
 
-    $cmd = sprintf('mysqldump %s -u "%s" -p"%s" -h "%s" "%s"',
+    $cmd = sprintf('mysqldump %s -u %s -p%s -h "%s" "%s"',
         $options['mysqldump-options'],
-        $db->getParameter('username'),
-        $db->getParameter('password'),
+        escapeshellarg($db->getParameter('username')),
+        escapeshellarg($db->getParameter('password')),
         $dsn['host'],
         $dsn['dbname']
     );
