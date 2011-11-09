@@ -88,7 +88,27 @@ EOF;
     }
     elseif(strcmp($arguments['dest'], 'localhost') != 0 && array_key_exists($arguments['dest'], $settings) && $options['include-database'])
     {
-      throw new sfException('Not yet implimented');
+      $cmd = sprintf('./symfony io:mysqldump --application=%s --env=%s --connection=%s --mysqldump-options="%s" | ssh -p%s %s@%s \'cd %s; ./symfony io:mysql-load --application=%s --env=%s --connection=%s\'',
+          $options['application'],
+          $options['env'],
+          $options['connection'],
+          $options['mysqldump-options'],
+          empty($settings[$arguments['dest']]['port']) ? '22' : $settings[$arguments['dest']]['port'],
+          $settings[$arguments['dest']]['user'],
+          $settings[$arguments['dest']]['host'],
+          $settings[$arguments['dest']]['dir'],
+          $options['application'],
+          $options['env'],
+          $options['connection']
+      );
+      if ($options['dry-run'])
+      {
+        $this->logSection('dry-run', 'syncing databases');
+      }
+      else
+      {
+        system($cmd);
+      }
     }
     elseif($options['include-database'])
     {
