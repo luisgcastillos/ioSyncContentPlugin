@@ -55,6 +55,18 @@ server to your computer:
 This will take a dump of the database used on your production server and import
 it into your localhost.
 
+When the ioSyncContentPlugin dumps your database, you can tell it which tables
+you want to not dump. For example, if you don't want to dump the blog_comments
+table, you can do that. In the app.yml file put the models you would like to
+ignore.
+
+    # /config/app.yml
+    all:
+      ioSyncContent:
+        database_ignore:
+          - BlogComments
+
+
 Syncing Files and Folders
 =========================
 

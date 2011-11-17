@@ -59,6 +59,9 @@ EOF;
 
     $settings = parse_ini_file(sfConfig::get('sf_root_dir') . '/config/properties.ini', true);
 
+    /* @var $database sfDoctrineDatabase */
+    $database = $databaseManager->getDatabase($options['connection']);
+
     /**
      * Sync the databases
      */
