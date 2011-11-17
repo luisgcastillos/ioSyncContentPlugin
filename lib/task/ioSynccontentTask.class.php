@@ -59,6 +59,9 @@ EOF;
 
     $settings = parse_ini_file(sfConfig::get('sf_root_dir') . '/config/properties.ini', true);
 
+    /* @var $database sfDoctrineDatabase */
+    $database = $databaseManager->getDatabase($options['connection']);
+
     /**
      * Sync the databases
      */
@@ -125,7 +128,7 @@ EOF;
         $this->logSection('sync-content', 'Syncing content from remote server to localhost');
         foreach($contentArray as $content)
         {
-          $cmd = sprintf('rsync %s %s -e "ssh -p%s" %s@%s:%s/ %s',
+          $cmd = sprintf('rsync %s %s -e "ssh -p%s" %s@%s:%s/ %s/',
               $options['dry-run'] ? '--dry-run' : '',
               $options['rsync-options'],
               empty($settings[$arguments['src']]['port']) ? '22' : $settings[$arguments['src']]['port'],
@@ -147,7 +150,7 @@ EOF;
         $this->logSection('sync-content', 'Syncing content from localhost to remote server');
         foreach($contentArray as $content)
         {
-          $cmd = sprintf('rsync %s %s -e "ssh -p%s" %s %s@%s:%s',
+          $cmd = sprintf('rsync %s %s -e "ssh -p%s" %s/ %s@%s:%s/',
               $options['dry-run'] ? '--dry-run' : '',
               $options['rsync-options'],
               empty($settings[$arguments['dest']]['port']) ? '22' : $settings[$arguments['dest']]['port'],

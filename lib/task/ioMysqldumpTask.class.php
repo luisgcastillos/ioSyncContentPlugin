@@ -12,6 +12,7 @@ class ioMysqldumpTask extends sfBaseTask
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
       new sfCommandOption('mysqldump-options', null, sfCommandOption::PARAMETER_REQUIRED, 'Options to pass to mysqldump', '--skip-opt --add-drop-table --create-options --disable-keys --extended-insert --set-charset'),
+      new sfCommandOption('only-models', null, sfCommandOption::PARAMETER_OPTIONAL, 'List of model names'),
     ));
 
     $this->namespace = 'io';
@@ -25,7 +26,7 @@ Call it with:
 
 To save the output to a file, call it with
 
-  [php symfony io:mysqldump > database.yml|INFO]
+  [php symfony io:mysqldump > database.sql|INFO]
 EOF;
   }
 
@@ -43,14 +44,34 @@ EOF;
 
     $dsn = ioSyncContentToolkit::parseDsn($db->getParameter('dsn'));
 
-    $cmd = sprintf('mysqldump %s -u %s -p%s -h "%s" "%s"',
+    $cmd = sprintf('mysqldump %s -u %s -p%s -h "%s" "%s" %s',
         $options['mysqldump-options'],
         escapeshellarg($db->getParameter('username')),
         escapeshellarg($db->getParameter('password')),
         $dsn['host'],
-        $dsn['dbname']
+        $dsn['dbname'],
+        $this->getTablesToDump()
     );
     system($cmd);
+  }
+
+  /**
+   * This function will return the tables that we want to sync
+   *
+   * @return string
+   */
+  protected function getTablesToDump()
+  {
+    Doctrine_Core::loadModels(sfConfig::get('sf_lib_dir') . '/model/');
+    $all_models = Doctrine_Core::getLoadedModels();
+    $exclude_models = sfConfig::get('app_ioSyncContent_database_ignore', array());
+    $models = array_diff($all_models,$exclude_models);
+    sort($models);
+    foreach ($models as $i => $model_name)
+    {
+      $models[$i] = sfInflector::tableize($model_name);
+    }
+    return implode(' ', $models);
   }
 
 }
