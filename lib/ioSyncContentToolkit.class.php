@@ -29,7 +29,7 @@ class ioSyncContentToolkit
 
     $params['driver'] = $a[1];
 
-    preg_match_all("/([a-zA-Z0-9]+)=([a-zA-Z0-9\.]+)/",$a[2],$b);
+    preg_match_all("/([a-zA-Z0-9]+)=([a-zA-Z0-9_\.]+)/",$a[2],$b);
     // $b[0][0] = host=LOCALHOST
     // $b[0][1] = dbname=DATABASENAME
 

@@ -18,7 +18,7 @@ class ioSynccontentTask extends sfBaseTask
       new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name', 'frontend'),
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
-      new sfCommandOption('rsync-options', null, sfCommandOption::PARAMETER_REQUIRED, 'Options to use when rsyncing', '-avz'),
+      new sfCommandOption('rsync-options', null, sfCommandOption::PARAMETER_REQUIRED, 'Options to use when rsyncing', '-avzCr --progress'),
       new sfCommandOption('include-database', null, sfCommandOption::PARAMETER_NONE, 'Include the database'),
       new sfCommandOption('include-content', null, sfCommandOption::PARAMETER_NONE, 'Include files and folders as defined in app.yml'),
       new sfCommandOption('dry-run', null, sfCommandOption::PARAMETER_NONE, 'Dry run, does not sync anything'),
@@ -64,7 +64,7 @@ EOF;
      */
     if(strcmp($arguments['src'], 'localhost') != 0 && array_key_exists($arguments['src'], $settings) && $options['include-database'])
     {
-      $cmd = sprintf('ssh -p%s %s@%s \'cd %s; ./symfony io:mysqldump --application=% --env=% --connection=%s --mysqldump-options="%s"\' | ./symfony io:mysql-load --application=% --env=% --connection=%s',
+      $cmd = sprintf('ssh -p%s %s@%s \'cd %s; ./symfony io:mysqldump --application=%s --env=%s --connection=%s --mysqldump-options="%s"\' | ./symfony io:mysql-load --application=%s --env=%s --connection=%s',
           empty($settings[$arguments['src']]['port']) ? '22' : $settings[$arguments['src']]['port'],
           $settings[$arguments['src']]['user'],
           $settings[$arguments['src']]['host'],
@@ -83,12 +83,32 @@ EOF;
       }
       else
       {
-        $this->getFilesystem()->execute($cmd, array($this, 'logOutput'), array($this, 'logErrors'));
+        system($cmd);
       }
     }
     elseif(strcmp($arguments['dest'], 'localhost') != 0 && array_key_exists($arguments['dest'], $settings) && $options['include-database'])
     {
-      throw new sfException('Not yet implimented');
+      $cmd = sprintf('./symfony io:mysqldump --application=%s --env=%s --connection=%s --mysqldump-options="%s" | ssh -p%s %s@%s \'cd %s; ./symfony io:mysql-load --application=%s --env=%s --connection=%s\'',
+          $options['application'],
+          $options['env'],
+          $options['connection'],
+          $options['mysqldump-options'],
+          empty($settings[$arguments['dest']]['port']) ? '22' : $settings[$arguments['dest']]['port'],
+          $settings[$arguments['dest']]['user'],
+          $settings[$arguments['dest']]['host'],
+          $settings[$arguments['dest']]['dir'],
+          $options['application'],
+          $options['env'],
+          $options['connection']
+      );
+      if ($options['dry-run'])
+      {
+        $this->logSection('dry-run', 'syncing databases');
+      }
+      else
+      {
+        system($cmd);
+      }
     }
     elseif($options['include-database'])
     {
@@ -142,7 +162,7 @@ EOF;
         }
       }
     }
-    elseif($options['include-database'])
+    elseif($options['include-content'])
     {
       throw new sfException(sprintf('Could not find host in properties.ini'));
     }
