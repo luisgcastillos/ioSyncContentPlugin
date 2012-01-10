@@ -74,9 +74,8 @@ server to your computer:</p>
 it into your localhost.</p>
 
 <p>When the ioSyncContentPlugin dumps your database, you can tell it which tables
-you want to not dump. For example, if you don't want to dump the blog_comments
-table, you can do that. In the app.yml file put the models you would like to
-ignore.</p>
+you don't want to dump. For example, if you don’t want to dump the blog_comments
+table, you can do that. In the app.yml file put the models you would like to ignore.</p>
 
 <pre>
 <code>
