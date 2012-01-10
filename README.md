@@ -1,6 +1,6 @@
 <h1>ioSyncContentPlugin</h1>
 
-<p>This plugin will allow you to sync content and databases from one server to another.
+<p>This plug in will allow you to sync content and databases from one server to another.
 Many projects we work on include at least a staging server as well as a production
 server. In many cases we need to update our local boxes with data that is either
 on production or staging servers.</p>
@@ -13,7 +13,7 @@ on production or staging servers.</p>
 
 <h1>Syncing Content</h1>
 
-<p>To sync content from one server to another you just need to type:<p>
+<p>To sync content from one server to another, type:<p>
 
 <pre>
 <code>
@@ -27,7 +27,7 @@ OR --include-content. You can always pass both options if you want to sync
 both.</p>
 
 <p>The source and destination are references to the servers that are in your properties.ini
-file (config/properties.ini). For example if you had an entry labeled production:</p>
+file (config/properties.ini). For example, if you had an entry labeled production:</p>
 
 <pre>
 <code>
@@ -39,7 +39,7 @@ file (config/properties.ini). For example if you had an entry labeled production
 </code>
 </pre>
 
-<p>Then you can import content from it by typeing:</p>
+<p>Then you can import content from it by typing:</p>
 
 <pre>
 <code>
@@ -52,7 +52,7 @@ properties.ini file.</p>
 
 <h1>Syncing Databases</h1>
 
-<p>To sync a database you just need to type:</p>
+<p>To sync a database, type:</p>
 
 <pre>
 <code>
@@ -90,7 +90,7 @@ ignore.</p>
 
 <h1>Syncing Files and Folders</h1>
 
-<p>To sync files and folders you just type:</p>
+<p>To sync files and folders, type:</p>
 
 <pre>
 <code>
@@ -125,15 +125,15 @@ would type:</p>
 the way it works.</p>
 
 <p><b>--application=frontend</b><br/>
-If you want to use something other then the frontend app, change it here. This
+If you want to use something other than the frontend app, change it here. This
 is used when syncing the database from one server to another.</p>
 
 <p><b>--env=dev</b><br/>
-If you have multiple environments setup, then you can change that by passing
+If you have multiple environments set up, then you can change that by passing
 this option.</p>
 
 <p><b>--connection=doctrine</b><br/>
-This referers to the connection name that is located in your databases.yml
+This refers to the connection name that is located in your databases.yml
 </p>
 
 <p><b>--rsync-options="-avz"</b><br/>
@@ -141,8 +141,7 @@ When you sync files and folders, the task will use rsync. Sometimes you will
 want to change some of the options that rsync uses.</p>
 
 <p><b>--dry-run</b><br/>
-If you pass this option, then only the output will be displayed, nothing will
-sync.</p>
+If you pass this option, only the output will be displayed and nothing will sync.</p>
 
 <p><b>--mysqldump-options="--skip-opt --add-drop-table --create-options --disable-keys --extended-insert --set-charset"</b><br/>
 If you are syncing databases, you can pass this option and change the way the
