@@ -62,16 +62,12 @@ EOF;
    */
   protected function getTablesToDump()
   {
-    Doctrine_Core::loadModels(sfConfig::get('sf_lib_dir') . '/model/');
-    $all_models = Doctrine_Core::getLoadedModels();
-    $exclude_models = sfConfig::get('app_ioSyncContent_database_ignore', array());
-    $models = array_diff($all_models,$exclude_models);
-    sort($models);
-    foreach ($models as $i => $model_name)
-    {
-      $models[$i] = sfInflector::tableize($model_name);
-    }
-    return implode(' ', $models);
+    /* @var $import Doctrine_Import_Mysql */
+    $import = Doctrine_Manager::connection()->import;
+    $tables = $import->listTables();
+    $exclude_models = array_map(array('sfInflector','tableize'),sfConfig::get('app_ioSyncContent_database_ignore', array()));
+    $tables = array_diff($tables,$exclude_models);;
+    return implode(' ', $tables);
   }
 
 }
