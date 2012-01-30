@@ -18,7 +18,7 @@ class ioSynccontentTask extends sfBaseTask
       new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name', 'frontend'),
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
-      new sfCommandOption('rsync-options', null, sfCommandOption::PARAMETER_REQUIRED, 'Options to use when rsyncing', '-avzCr --force --delete --progress'),
+      new sfCommandOption('rsync-options', null, sfCommandOption::PARAMETER_REQUIRED, 'Options to use when rsyncing', '-avzCr --progress'),
       new sfCommandOption('include-database', null, sfCommandOption::PARAMETER_NONE, 'Include the database'),
       new sfCommandOption('include-content', null, sfCommandOption::PARAMETER_NONE, 'Include files and folders as defined in app.yml'),
       new sfCommandOption('dry-run', null, sfCommandOption::PARAMETER_NONE, 'Dry run, does not sync anything'),
@@ -59,12 +59,15 @@ EOF;
 
     $settings = parse_ini_file(sfConfig::get('sf_root_dir') . '/config/properties.ini', true);
 
+    /* @var $database sfDoctrineDatabase */
+    $database = $databaseManager->getDatabase($options['connection']);
+
     /**
      * Sync the databases
      */
     if(strcmp($arguments['src'], 'localhost') != 0 && array_key_exists($arguments['src'], $settings) && $options['include-database'])
     {
-      $cmd = sprintf('ssh -p%s %s@%s \'cd %s; ./symfony io:mysqldump --application=%s --env=%s --connection=%s --mysqldump-options="%s"\' | ./symfony io:mysql-load --application=%s --env=%s --connection=%s',
+      $cmd = sprintf('ssh -p%s %s@%s \'cd %s; ./symfony io:mysqldump --application=%s --env=%s --connection=%s --mysqldump-options="%s"\' | ./symfony io:mysql-load --backup --application=%s --env=%s --connection=%s',
           empty($settings[$arguments['src']]['port']) ? '22' : $settings[$arguments['src']]['port'],
           $settings[$arguments['src']]['user'],
           $settings[$arguments['src']]['host'],
@@ -88,7 +91,27 @@ EOF;
     }
     elseif(strcmp($arguments['dest'], 'localhost') != 0 && array_key_exists($arguments['dest'], $settings) && $options['include-database'])
     {
-      throw new sfException('Not yet implimented');
+      $cmd = sprintf('./symfony io:mysqldump --application=%s --env=%s --connection=%s --mysqldump-options="%s" | ssh -p%s %s@%s \'cd %s; ./symfony io:mysql-load --backup --application=%s --env=%s --connection=%s\'',
+          $options['application'],
+          $options['env'],
+          $options['connection'],
+          $options['mysqldump-options'],
+          empty($settings[$arguments['dest']]['port']) ? '22' : $settings[$arguments['dest']]['port'],
+          $settings[$arguments['dest']]['user'],
+          $settings[$arguments['dest']]['host'],
+          $settings[$arguments['dest']]['dir'],
+          $options['application'],
+          $options['env'],
+          $options['connection']
+      );
+      if ($options['dry-run'])
+      {
+        $this->logSection('dry-run', 'syncing databases');
+      }
+      else
+      {
+        system($cmd);
+      }
     }
     elseif($options['include-database'])
     {
@@ -105,7 +128,7 @@ EOF;
         $this->logSection('sync-content', 'Syncing content from remote server to localhost');
         foreach($contentArray as $content)
         {
-          $cmd = sprintf('rsync %s %s -e "ssh -p%s" %s@%s:%s/ %s',
+          $cmd = sprintf('rsync %s %s -e "ssh -p%s" %s@%s:%s/ %s/',
               $options['dry-run'] ? '--dry-run' : '',
               $options['rsync-options'],
               empty($settings[$arguments['src']]['port']) ? '22' : $settings[$arguments['src']]['port'],
@@ -127,7 +150,7 @@ EOF;
         $this->logSection('sync-content', 'Syncing content from localhost to remote server');
         foreach($contentArray as $content)
         {
-          $cmd = sprintf('rsync %s %s -e "ssh -p%s" %s %s@%s:%s',
+          $cmd = sprintf('rsync %s %s -e "ssh -p%s" %s/ %s@%s:%s/',
               $options['dry-run'] ? '--dry-run' : '',
               $options['rsync-options'],
               empty($settings[$arguments['dest']]['port']) ? '22' : $settings[$arguments['dest']]['port'],
