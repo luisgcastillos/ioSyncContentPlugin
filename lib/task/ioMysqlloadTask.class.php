@@ -49,12 +49,13 @@ EOF;
           sfConfig::get('sf_data_dir'),
           time()
       );
+      $this->getFilesystem()->mkdirs(sfConfig::get('sf_data_dir') . '/sql');
       system($cmd);
     }
 
-    $cmd = sprintf('mysql -u "%s" -p"%s" -h "%s" "%s"',
-      $db->getParameter('username'),
-      $db->getParameter('password'),
+    $cmd = sprintf('mysql -u %s -p%s -h "%s" "%s"',
+      escapeshellarg($db->getParameter('username')),
+      escapeshellarg($db->getParameter('password')),
       $dsn['host'],
       $dsn['dbname']
     );
